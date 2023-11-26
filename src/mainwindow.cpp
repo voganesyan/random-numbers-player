@@ -3,6 +3,7 @@
 
 #include <QChartView>
 #include <QHeaderView>
+#include <bit>
 
 static constexpr int MAX_NUMBER = 100;
 static constexpr int TIME_INTERVAL_MS = 500;
@@ -121,7 +122,7 @@ void MainWindow::init_number_generator()
 void MainWindow::extend_line(int y)
 {
     m_line->append(m_line->count(), y);
-    m_axis_x->setMax(m_line->count() + 1);
+    m_axis_x->setMax(std::bit_ceil(static_cast<unsigned int>(m_line->count())));
 }
 
 void MainWindow::add_table_row()
