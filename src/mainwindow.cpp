@@ -1,13 +1,30 @@
 #include "mainwindow.h"
 #include "numbergenerator.h"
 #include <QChartView>
-#include <QLayout>
 #include <QTableWidget>
 
 static constexpr int MAX_NUMBER = 100;
 static constexpr int TIME_INTERVAL_MS = 500;
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
+  auto plot_layout = create_plot_widgets();
+  auto table_layout = create_table_widgets();
+  auto main_layout = new QHBoxLayout();
+  main_layout->addLayout(plot_layout);
+  main_layout->addLayout(table_layout);
+
+  auto main_widget = new QWidget();
+  main_widget->setLayout(main_layout);
+  setCentralWidget(main_widget);
+}
+
+MainWindow::~MainWindow() {
+  m_play_button->setChecked(false);
+  m_thread.quit();
+  m_thread.wait();
+}
+
+QLayout *MainWindow::create_plot_widgets() {
   // Create buttons
   m_play_button = new QPushButton("Start/Stop");
   m_play_button->setCheckable(true);
@@ -37,31 +54,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   auto chart_view = new QChartView(chart, nullptr);
   chart_view->setRenderHint(QPainter::Antialiasing);
 
-  auto left_layout = new QVBoxLayout();
-  left_layout->addWidget(chart_view);
-  left_layout->addLayout(buttons_layout);
-
-  auto table = new QTableWidget();
-  table->setColumnCount(2);
-  table->setHorizontalHeaderLabels({"Count", "Summary"});
-  auto save_button = new QPushButton("Save");
-  auto clear_button = new QPushButton("Clear");
-  auto right_buttons_layout = new QHBoxLayout();
-  right_buttons_layout->addWidget(save_button);
-  right_buttons_layout->addWidget(clear_button);
-  right_buttons_layout->addStretch();
-
-  auto right_layout = new QVBoxLayout();
-  right_layout->addWidget(table);
-  right_layout->addLayout(right_buttons_layout);
-
-  auto main_layout = new QHBoxLayout();
-  main_layout->addLayout(left_layout);
-  main_layout->addLayout(right_layout);
-
-  auto main_widget = new QWidget();
-  main_widget->setLayout(main_layout);
-  setCentralWidget(main_widget);
+  auto main_layout = new QVBoxLayout();
+  main_layout->addWidget(chart_view);
+  main_layout->addLayout(buttons_layout);
 
   // Create number generator
   auto generator = new NumberGenerator(MAX_NUMBER, TIME_INTERVAL_MS);
@@ -74,12 +69,23 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   connect(generator, &NumberGenerator::generated, this,
           &MainWindow::extend_line);
   m_thread.start();
+  return main_layout;
 }
 
-MainWindow::~MainWindow() {
-  m_play_button->setChecked(false);
-  m_thread.quit();
-  m_thread.wait();
+QLayout *MainWindow::create_table_widgets() {
+  auto table = new QTableWidget();
+  table->setColumnCount(2);
+  table->setHorizontalHeaderLabels({"Count", "Summary"});
+  auto save_button = new QPushButton("Save");
+  auto clear_button = new QPushButton("Clear");
+  auto buttons_layout = new QHBoxLayout();
+  buttons_layout->addWidget(save_button);
+  buttons_layout->addWidget(clear_button);
+  buttons_layout->addStretch();
+  auto main_layout = new QVBoxLayout();
+  main_layout->addWidget(table);
+  main_layout->addLayout(buttons_layout);
+  return main_layout;
 }
 
 void MainWindow::extend_line(int y) {
