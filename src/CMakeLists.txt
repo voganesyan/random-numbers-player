@@ -7,6 +7,7 @@ find_package(Qt6 REQUIRED COMPONENTS Charts Core Gui)
 
 qt_add_executable(random-numbers-player
     mainwindow.cpp mainwindow.h
+    summarymodel.cpp summarymodel.h
     numbergenerator.cpp numbergenerator.h
     main.cpp
 )
