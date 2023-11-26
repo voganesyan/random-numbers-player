@@ -20,14 +20,14 @@ private slots:
     void clear_table();
 
 private:
-    QLayout* create_plot_widgets();
-    QLayout* create_table_widgets();
-    void create_number_generator();
+    QLayout* init_chart_widgets();
+    QLayout* init_table_widgets();
+    void init_number_generator();
 
     QPushButton* m_start_button = nullptr;
     QSplineSeries* m_line = nullptr;
     QValueAxis* m_axis_x = nullptr;
     QTableWidget* m_table = nullptr;
 
-    QThread m_thread;
+    QThread m_number_generator_thread;
 };

@@ -9,8 +9,8 @@ static constexpr int TIME_INTERVAL_MS = 500;
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
 {
-    auto plot_layout = create_plot_widgets();
-    auto table_layout = create_table_widgets();
+    auto plot_layout = init_chart_widgets();
+    auto table_layout = init_table_widgets();
     auto main_layout = new QHBoxLayout();
     main_layout->addLayout(plot_layout, 1);
     main_layout->addLayout(table_layout, 0);
@@ -19,18 +19,17 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
     main_widget->setLayout(main_layout);
     setCentralWidget(main_widget);
 
-    create_number_generator();
-    m_thread.start();
+    init_number_generator();
 }
 
 MainWindow::~MainWindow()
 {
     m_start_button->setChecked(false);
-    m_thread.quit();
-    m_thread.wait();
+    m_number_generator_thread.quit();
+    m_number_generator_thread.wait();
 }
 
-QLayout* MainWindow::create_plot_widgets()
+QLayout* MainWindow::init_chart_widgets()
 {
     // Create chart & line
     m_line = new QSplineSeries();
@@ -69,7 +68,7 @@ QLayout* MainWindow::create_plot_widgets()
     return main_layout;
 }
 
-QLayout* MainWindow::create_table_widgets()
+QLayout* MainWindow::init_table_widgets()
 {
     // Create table
     m_table = new QTableWidget();
@@ -95,12 +94,16 @@ QLayout* MainWindow::create_table_widgets()
     return main_layout;
 }
 
-void MainWindow::create_number_generator()
+void MainWindow::init_number_generator()
 {
     auto generator = new NumberGenerator(MAX_NUMBER, TIME_INTERVAL_MS);
-    generator->moveToThread(&m_thread);
+    generator->moveToThread(&m_number_generator_thread);
 
-    connect(&m_thread, &QThread::finished, generator, &QObject::deleteLater);
+    connect(
+        &m_number_generator_thread,
+        &QThread::finished,
+        generator,
+        &QObject::deleteLater);
     connect(
         m_start_button,
         &QPushButton::toggled,
@@ -108,6 +111,7 @@ void MainWindow::create_number_generator()
         &NumberGenerator::set_state);
     connect(
         generator, &NumberGenerator::generated, this, &MainWindow::extend_line);
+    m_number_generator_thread.start();
 }
 
 void MainWindow::extend_line(int y)
