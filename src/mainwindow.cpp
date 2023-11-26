@@ -9,10 +9,10 @@ static constexpr int TIME_INTERVAL_MS = 500;
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
 {
-    auto plot_layout = init_chart_widgets();
+    auto chart_layout = init_chart_widgets();
     auto table_layout = init_table_widgets();
     auto main_layout = new QHBoxLayout();
-    main_layout->addLayout(plot_layout, 1);
+    main_layout->addLayout(chart_layout, 1);
     main_layout->addLayout(table_layout, 0);
 
     auto main_widget = new QWidget();
@@ -78,6 +78,7 @@ QLayout* MainWindow::init_table_widgets()
     m_table->setColumnCount(2);
     m_table->setHorizontalHeaderLabels({"Count", "Summary"});
     m_table->horizontalHeader()->setStretchLastSection(true);
+    m_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     // Create buttons
     auto save_button = new QPushButton("Save");
