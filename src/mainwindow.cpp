@@ -1,8 +1,7 @@
 #include "mainwindow.h"
-#include <QChartView>
-#include <QTableView>
 #include "numbergenerator.h"
-#include "summarymodel.h"
+
+#include <QChartView>
 
 static constexpr int MAX_NUMBER = 100;
 static constexpr int TIME_INTERVAL_MS = 500;
@@ -81,9 +80,9 @@ QLayout* MainWindow::create_plot_widgets()
 
 QLayout* MainWindow::create_table_widgets()
 {
-    auto table_view = new QTableView();
-    m_summary_model = new SummaryModel(table_view);
-    table_view->setModel(m_summary_model);
+    m_table = new QTableWidget();
+    m_table->setColumnCount(2);
+    m_table->setHorizontalHeaderLabels({"Count", "Summary"});
 
     auto save_button = new QPushButton("Save");
     auto clear_button = new QPushButton("Clear");
@@ -96,7 +95,7 @@ QLayout* MainWindow::create_table_widgets()
     connect(clear_button, &QPushButton::clicked, this, &MainWindow::clear_table);
 
     auto main_layout = new QVBoxLayout();
-    main_layout->addWidget(table_view);
+    main_layout->addWidget(m_table);
     main_layout->addLayout(buttons_layout);
     return main_layout;
 }
@@ -109,17 +108,20 @@ void MainWindow::extend_line(int y)
 
 void MainWindow::update_table()
 {
-    QList<int> numbers;
-    numbers.reserve(m_line->count());
-    for (int i = 0; i < m_line->count(); i++)
+    const int count = m_line->count();
+    int sum = 0;
+    for (int i = 0; i < count; i++)
     {
-        numbers << m_line->at(i).y();
+        sum += m_line->at(i).y();
     }
 
-    m_summary_model->setNumbers(numbers);
+    int row_pos = m_table->rowCount();
+    m_table->insertRow(row_pos);
+    m_table->setItem(row_pos, 0, new QTableWidgetItem(QString::number(count)));
+    m_table->setItem(row_pos, 1, new QTableWidgetItem(QString::number(sum)));
 }
 
 void MainWindow::clear_table()
 {
-    m_summary_model->setNumbers({});
+    m_table->setRowCount(0);
 }

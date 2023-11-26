@@ -3,10 +3,9 @@
 #include <QMainWindow>
 #include <QPushButton>
 #include <QSplineSeries>
+#include <QTableWidget>
 #include <QThread>
 #include <QValueAxis>
-
-class SummaryModel;
 
 class MainWindow : public QMainWindow
 {
@@ -27,7 +26,7 @@ private:
     QPushButton* m_play_button = nullptr;
     QSplineSeries* m_line = nullptr;
     QValueAxis* m_axis_x = nullptr;
-    SummaryModel* m_summary_model = nullptr;
+    QTableWidget* m_table = nullptr;
 
     QThread m_thread;
 };
