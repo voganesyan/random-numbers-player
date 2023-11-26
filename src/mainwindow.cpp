@@ -2,6 +2,7 @@
 #include "numbergenerator.h"
 #include <QChartView>
 #include <QLayout>
+#include <QTableWidget>
 
 static constexpr int MAX_NUMBER = 100;
 static constexpr int TIME_INTERVAL_MS = 500;
@@ -36,9 +37,27 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   auto chart_view = new QChartView(chart, nullptr);
   chart_view->setRenderHint(QPainter::Antialiasing);
 
-  auto main_layout = new QVBoxLayout();
-  main_layout->addWidget(chart_view);
-  main_layout->addLayout(buttons_layout);
+  auto left_layout = new QVBoxLayout();
+  left_layout->addWidget(chart_view);
+  left_layout->addLayout(buttons_layout);
+
+  auto table = new QTableWidget();
+  table->setColumnCount(2);
+  table->setHorizontalHeaderLabels({"Count", "Summary"});
+  auto save_button = new QPushButton("Save");
+  auto clear_button = new QPushButton("Clear");
+  auto right_buttons_layout = new QHBoxLayout();
+  right_buttons_layout->addWidget(save_button);
+  right_buttons_layout->addWidget(clear_button);
+  right_buttons_layout->addStretch();
+
+  auto right_layout = new QVBoxLayout();
+  right_layout->addWidget(table);
+  right_layout->addLayout(right_buttons_layout);
+
+  auto main_layout = new QHBoxLayout();
+  main_layout->addLayout(left_layout);
+  main_layout->addLayout(right_layout);
 
   auto main_widget = new QWidget();
   main_widget->setLayout(main_layout);
