@@ -1,4 +1,5 @@
 #include "numbergenerator.h"
+
 #include <QCoreApplication>
 #include <QThread>
 

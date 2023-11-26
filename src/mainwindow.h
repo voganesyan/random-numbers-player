@@ -16,7 +16,7 @@ public:
 
 private slots:
     void extend_line(int y);
-    void update_table();
+    void add_table_row();
     void clear_table();
 
 private:

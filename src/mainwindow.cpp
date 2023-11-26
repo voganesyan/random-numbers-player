@@ -91,7 +91,8 @@ QLayout* MainWindow::create_table_widgets()
     buttons_layout->addWidget(clear_button);
     buttons_layout->addStretch();
 
-    connect(save_button, &QPushButton::clicked, this, &MainWindow::update_table);
+    connect(
+        save_button, &QPushButton::clicked, this, &MainWindow::add_table_row);
     connect(clear_button, &QPushButton::clicked, this, &MainWindow::clear_table);
 
     auto main_layout = new QVBoxLayout();
@@ -106,7 +107,7 @@ void MainWindow::extend_line(int y)
     m_axis_x->setMax(m_line->count() + 1);
 }
 
-void MainWindow::update_table()
+void MainWindow::add_table_row()
 {
     const int count = m_line->count();
     int sum = 0;
@@ -115,7 +116,7 @@ void MainWindow::update_table()
         sum += m_line->at(i).y();
     }
 
-    int row_pos = m_table->rowCount();
+    const int row_pos = m_table->rowCount();
     m_table->insertRow(row_pos);
     m_table->setItem(row_pos, 0, new QTableWidgetItem(QString::number(count)));
     m_table->setItem(row_pos, 1, new QTableWidgetItem(QString::number(sum)));
