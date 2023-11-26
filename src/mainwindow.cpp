@@ -2,6 +2,7 @@
 #include "numbergenerator.h"
 
 #include <QChartView>
+#include <QHeaderView>
 
 static constexpr int MAX_NUMBER = 100;
 static constexpr int TIME_INTERVAL_MS = 500;
@@ -11,8 +12,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
     auto plot_layout = create_plot_widgets();
     auto table_layout = create_table_widgets();
     auto main_layout = new QHBoxLayout();
-    main_layout->addLayout(plot_layout);
-    main_layout->addLayout(table_layout);
+    main_layout->addLayout(plot_layout, 1);
+    main_layout->addLayout(table_layout, 0);
 
     auto main_widget = new QWidget();
     main_widget->setLayout(main_layout);
@@ -83,6 +84,7 @@ QLayout* MainWindow::create_table_widgets()
     m_table = new QTableWidget();
     m_table->setColumnCount(2);
     m_table->setHorizontalHeaderLabels({"Count", "Summary"});
+    m_table->horizontalHeader()->setStretchLastSection(true);
 
     auto save_button = new QPushButton("Save");
     auto clear_button = new QPushButton("Clear");
