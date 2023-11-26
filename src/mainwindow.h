@@ -22,8 +22,9 @@ private slots:
 private:
     QLayout* create_plot_widgets();
     QLayout* create_table_widgets();
+    void create_number_generator();
 
-    QPushButton* m_play_button = nullptr;
+    QPushButton* m_start_button = nullptr;
     QSplineSeries* m_line = nullptr;
     QValueAxis* m_axis_x = nullptr;
     QTableWidget* m_table = nullptr;

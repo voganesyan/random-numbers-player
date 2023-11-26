@@ -18,23 +18,21 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
     auto main_widget = new QWidget();
     main_widget->setLayout(main_layout);
     setCentralWidget(main_widget);
+
+    create_number_generator();
+    m_thread.start();
 }
 
 MainWindow::~MainWindow()
 {
-    m_play_button->setChecked(false);
+    m_start_button->setChecked(false);
     m_thread.quit();
     m_thread.wait();
 }
 
 QLayout* MainWindow::create_plot_widgets()
 {
-    // Create buttons
-    m_play_button = new QPushButton("Start/Stop");
-    m_play_button->setCheckable(true);
-    auto reset_button = new QPushButton("Reset");
-
-    // Create chart
+    // Create chart & line
     m_line = new QSplineSeries();
     m_axis_x = new QValueAxis();
     auto axis_y = new QValueAxis();
@@ -49,58 +47,67 @@ QLayout* MainWindow::create_plot_widgets()
     m_line->attachAxis(m_axis_x);
     m_line->attachAxis(axis_y);
 
-    // Add widgets to the window
-    auto buttons_layout = new QHBoxLayout();
-    buttons_layout->addWidget(m_play_button);
-    buttons_layout->addWidget(reset_button);
-    buttons_layout->addStretch();
-
     auto chart_view = new QChartView(chart, nullptr);
     chart_view->setRenderHint(QPainter::Antialiasing);
+
+    // Create buttons
+    m_start_button = new QPushButton("Start/Stop");
+    m_start_button->setCheckable(true);
+    auto reset_button = new QPushButton("Reset");
+    connect(reset_button, &QPushButton::clicked, m_line, &QLineSeries::clear);
+
+    // Add all widgets together
+    auto buttons_layout = new QHBoxLayout();
+    buttons_layout->addWidget(m_start_button);
+    buttons_layout->addWidget(reset_button);
+    buttons_layout->addStretch();
 
     auto main_layout = new QVBoxLayout();
     main_layout->addWidget(chart_view);
     main_layout->addLayout(buttons_layout);
 
-    // Create number generator
-    auto generator = new NumberGenerator(MAX_NUMBER, TIME_INTERVAL_MS);
-    generator->moveToThread(&m_thread);
-
-    connect(&m_thread, &QThread::finished, generator, &QObject::deleteLater);
-    connect(
-        m_play_button,
-        &QPushButton::toggled,
-        generator,
-        &NumberGenerator::set_state);
-    connect(reset_button, &QPushButton::clicked, m_line, &QLineSeries::clear);
-    connect(
-        generator, &NumberGenerator::generated, this, &MainWindow::extend_line);
-    m_thread.start();
     return main_layout;
 }
 
 QLayout* MainWindow::create_table_widgets()
 {
+    // Create table
     m_table = new QTableWidget();
     m_table->setColumnCount(2);
     m_table->setHorizontalHeaderLabels({"Count", "Summary"});
     m_table->horizontalHeader()->setStretchLastSection(true);
 
+    // Create buttons
     auto save_button = new QPushButton("Save");
     auto clear_button = new QPushButton("Clear");
-    auto buttons_layout = new QHBoxLayout();
-    buttons_layout->addWidget(save_button);
-    buttons_layout->addWidget(clear_button);
-    buttons_layout->addStretch();
-
     connect(
         save_button, &QPushButton::clicked, this, &MainWindow::add_table_row);
     connect(clear_button, &QPushButton::clicked, this, &MainWindow::clear_table);
 
+    // Add all widgets together
+    auto buttons_layout = new QHBoxLayout();
+    buttons_layout->addWidget(save_button);
+    buttons_layout->addWidget(clear_button);
+    buttons_layout->addStretch();
     auto main_layout = new QVBoxLayout();
     main_layout->addWidget(m_table);
     main_layout->addLayout(buttons_layout);
     return main_layout;
+}
+
+void MainWindow::create_number_generator()
+{
+    auto generator = new NumberGenerator(MAX_NUMBER, TIME_INTERVAL_MS);
+    generator->moveToThread(&m_thread);
+
+    connect(&m_thread, &QThread::finished, generator, &QObject::deleteLater);
+    connect(
+        m_start_button,
+        &QPushButton::toggled,
+        generator,
+        &NumberGenerator::set_state);
+    connect(
+        generator, &NumberGenerator::generated, this, &MainWindow::extend_line);
 }
 
 void MainWindow::extend_line(int y)
@@ -111,6 +118,7 @@ void MainWindow::extend_line(int y)
 
 void MainWindow::add_table_row()
 {
+    // Summarize
     const int count = m_line->count();
     int sum = 0;
     for (int i = 0; i < count; i++)
@@ -118,6 +126,7 @@ void MainWindow::add_table_row()
         sum += m_line->at(i).y();
     }
 
+    // Append row
     const int row_pos = m_table->rowCount();
     m_table->insertRow(row_pos);
     m_table->setItem(row_pos, 0, new QTableWidgetItem(QString::number(count)));
