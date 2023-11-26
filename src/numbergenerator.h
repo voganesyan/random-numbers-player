@@ -12,6 +12,7 @@ public slots:
     void set_state(bool is_generating);
 
 signals:
+    void state_changed(bool is_generating);
     void generated(int number);
 
 private:

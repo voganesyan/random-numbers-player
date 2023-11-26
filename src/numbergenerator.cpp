@@ -11,7 +11,11 @@ NumberGenerator::NumberGenerator(
 
 void NumberGenerator::set_state(bool is_generating)
 {
-    m_is_generating = is_generating;
+    if (m_is_generating != is_generating)
+    {
+        m_is_generating = is_generating;
+        emit state_changed(is_generating);
+    }
 
     while (m_is_generating)
     {
