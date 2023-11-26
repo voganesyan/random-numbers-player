@@ -37,6 +37,9 @@ QLayout* MainWindow::init_chart_widgets()
     auto axis_y = new QValueAxis();
     axis_y->setMax(MAX_NUMBER);
 
+    m_axis_x->setTitleText("Count");
+    axis_y->setTitleText("Value");
+
     auto chart = new QChart();
     chart->addSeries(m_line);
     chart->addAxis(m_axis_x, Qt::AlignBottom);
