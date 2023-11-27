@@ -115,6 +115,16 @@ void MainWindow::init_number_generator()
         generator,
         &NumberGenerator::set_state);
     connect(
+        m_start_button,
+        &QPushButton::clicked,
+        m_start_button,
+        &QPushButton::setDisabled);
+    connect(
+        generator,
+        &NumberGenerator::state_changed,
+        this,
+        [this]() { m_start_button->setEnabled(true); });
+    connect(
         generator, &NumberGenerator::generated, this, &MainWindow::extend_line);
     m_number_generator_thread.start();
 }
