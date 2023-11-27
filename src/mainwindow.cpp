@@ -116,9 +116,9 @@ void MainWindow::init_number_generator()
         &NumberGenerator::set_state);
     connect(
         m_start_button,
-        &QPushButton::clicked,
-        m_start_button,
-        &QPushButton::setDisabled);
+        &QPushButton::toggled,
+        this,
+        [this]() { m_start_button->setDisabled(true); });
     connect(
         generator,
         &NumberGenerator::state_changed,
